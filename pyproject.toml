@@ -1,0 +1,19 @@
+[project]
+name = "mixy-dfu"
+version = "0.1.0"
+description = "DFU tool for Mixy devices"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["pyserial"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+windows = [
+    "pywin32; sys_platform == 'win32'"
+]
+
+[project.scripts]
+mixy_dfu = "mixy_dfu.main:main"

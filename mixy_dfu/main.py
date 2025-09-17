@@ -12,7 +12,6 @@ except ImportError:
     print("pyserial is required. Install with: pip install pyserial")
     sys.exit(1)
 
-from .utils import handle_keyboard_interrupt
 
 ERR = "\033[91m"  # Bright Red
 SCS = "\033[92m"  # Bright Green
@@ -133,7 +132,6 @@ def flash_uf2(uf2_path: str, verbose=False) -> bool:
     return False
 
 
-@handle_keyboard_interrupt
 def main():
     parser = argparse.ArgumentParser(description="DFU reset tool")
     parser.add_argument("--vid", type=lambda x: int(x, 0),
@@ -147,38 +145,38 @@ def main():
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
-    # if args.firmware:
-    #        flash_uf2(args.firmware)
-
-    if args.firmware:
-        try:
-            with open(args.firmware, "rb") as f:
-                if not is_uf2(f.read(8)):
-                    print(f"{ERR}❌ Invalid UF2 file{RESET}")
-                    return
-        except OSError:
-            print(f"{ERR}❌ Cannot access UF2 file{RESET}")
-            return
-
-    if dev := find_device(args.vid, args.pid):
-        print(f"{INFO}🔍 Found Mixy reset interface: {dev}{RESET}")
-        dfu_reset(dev)  # ignore reset error
+    try:
         if args.firmware:
-            flash_uf2(args.firmware, args.verbose)
-        return
-    elif args.nowait:
-        print(f"{WRN}❌ No compatible device found{RESET}")
-        return
+            try:
+                with open(args.firmware, "rb") as f:
+                    if not is_uf2(f.read(8)):
+                        print(f"{ERR}❌ Invalid UF2 file{RESET}")
+                        return
+            except OSError:
+                print(f"{ERR}❌ Cannot access UF2 file{RESET}")
+                return
 
-    print(f"{INFO}⌛ Waiting for device...{RESET}")
-    while True:
         if dev := find_device(args.vid, args.pid):
-            print(f"{INFO}🔍 Mixy reset interface connected: {dev}{RESET}")
+            print(f"{INFO}🔍 Found Mixy reset interface: {dev}{RESET}")
             dfu_reset(dev)  # ignore reset error
             if args.firmware:
                 flash_uf2(args.firmware, args.verbose)
             return
-        time.sleep(0.5)
+        elif args.nowait:
+            print(f"{WRN}❌ No compatible device found{RESET}")
+            return
+
+        print(f"{INFO}⌛ Waiting for device...{RESET}")
+        while True:
+            if dev := find_device(args.vid, args.pid):
+                print(f"{INFO}🔍 Mixy reset interface connected: {dev}{RESET}")
+                dfu_reset(dev)  # ignore reset error
+                if args.firmware:
+                    flash_uf2(args.firmware, args.verbose)
+                return
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
 if __name__ == "__main__":

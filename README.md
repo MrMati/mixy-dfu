@@ -12,10 +12,10 @@ if they support resetting via magic baudrate setting (like RPi Pico).
 
 ## How to use
 
-Only reset with `python3  -m  mixy_dfu`
-Reset and UF2 upload with `python3  -m  mixy_dfu --firmware file.uf2`
+Only reset with `python3 -m mixy_dfu`
+Reset and UF2 upload with `python3 -m mixy_dfu --firmware file.uf2`
 
-If you installed the package then  `python3  -m  mixy_dfu` can be replaced with just `mixy_dfu`
+If you installed the package then `python3 -m mixy_dfu` can be replaced with just `mixy_dfu`
 
 
 ## Alternative tool

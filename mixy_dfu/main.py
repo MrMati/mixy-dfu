@@ -75,7 +75,7 @@ def flash_uf2_windows(uf2_path: str, verbose: bool) -> bool:
                         if verbose:
                             print("Error:", e)
                         return False
-                    print(f"{SCS}✅ UF2 flashed successfully{RESET}")
+                    print(f"{SCS}✅ Firmware flashed successfully{RESET}")
                     return True
             except Exception:
                 continue
@@ -101,7 +101,7 @@ def flash_uf2_linux(uf2_path: str, verbose: bool) -> bool:
                 try:
                     shutil.copyfile(uf2_path, os.path.join(
                         mount_point, uf2_path))
-                    print(f"{SCS}✅ UF2 flashed successfully{RESET}")
+                    print(f"{SCS}✅ Firmware flashed successfully{RESET}")
                     return True
                 except Exception as e:
                     print(f"{ERR}❓ UF2 flashing failed{RESET}")

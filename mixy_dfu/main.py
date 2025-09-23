@@ -69,7 +69,7 @@ def flash_uf2_windows(uf2_path: str, verbose: bool) -> bool:
                     print(
                         f"{SCS}⚙️ UF2 bootloader found ({d}). Flashing... {RESET}")
                     try:
-                        shutil.copyfile(uf2_path, os.path.join(d, uf2_path))
+                        shutil.copyfile(uf2_path, os.path.join(d, os.path.basename(uf2_path)))
                     except Exception as e:
                         print(f"{ERR}❓ UF2 flashing failed{RESET}")
                         if verbose:
@@ -86,21 +86,21 @@ def flash_uf2_windows(uf2_path: str, verbose: bool) -> bool:
 
 
 def flash_uf2_linux(uf2_path: str, verbose: bool) -> bool:
-    end_time = time.time() + 5
+    end_time=time.time() + 5
 
     while time.time() < end_time:
         with open("/proc/mounts", "r") as f:
-            mounts = [line.split()[1] for line in f.readlines()]
+            mounts=[line.split()[1] for line in f.readlines()]
 
         for mount_point in mounts:
             # TODO: check Board-ID
-            info_file = os.path.join(mount_point, "INFO_UF2.TXT")
+            info_file=os.path.join(mount_point, "INFO_UF2.TXT")
             if os.path.exists(info_file):
                 print(
                     f"{SCS}⚙️ UF2 bootloader found ({mount_point}). Flashing... {RESET}")
                 try:
                     shutil.copyfile(uf2_path, os.path.join(
-                        mount_point, uf2_path))
+                        mount_point, os.path.basename(uf2_path)))
                     print(f"{SCS}✅ Firmware flashed successfully{RESET}")
                     return True
                 except Exception as e:
@@ -119,7 +119,7 @@ def flash_uf2_linux(uf2_path: str, verbose: bool) -> bool:
 
 
 def flash_uf2(uf2_path: str, verbose=False) -> bool:
-    funcs = {
+    funcs={
         "linux": flash_uf2_linux,
         "win32": flash_uf2_windows,
     }
@@ -133,7 +133,7 @@ def flash_uf2(uf2_path: str, verbose=False) -> bool:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="DFU reset tool")
+    parser=argparse.ArgumentParser(description="DFU reset tool")
     parser.add_argument("--vid", type=lambda x: int(x, 0),
                         default=0x2FE3, help="USB VID (hex or int)")
     parser.add_argument("--pid", type=lambda x: int(x, 0),
@@ -143,7 +143,7 @@ def main():
     parser.add_argument("--nowait", action="store_true",
                         help="Do not wait for device if not found")
     parser.add_argument("-v", "--verbose", action="store_true")
-    args = parser.parse_args()
+    args=parser.parse_args()
 
     try:
         if args.firmware:

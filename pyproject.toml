@@ -10,10 +10,5 @@ dependencies = ["pyserial"]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-[project.optional-dependencies]
-windows = [
-    "pywin32; sys_platform == 'win32'"
-]
-
 [project.scripts]
 mixy_dfu = "mixy_dfu.main:main"

@@ -8,7 +8,6 @@ if they support resetting via magic baudrate setting (like RPi Pico).
 
 - **Python >= 3.10**
 - **pyserial**
-- pywin32 (optional, used for UF2 auto upload on Windows)
 
 ## How to use
 

@@ -48,35 +48,41 @@ def dfu_reset(device) -> bool:
 
 
 def flash_uf2_windows(uf2_path: str, verbose: bool) -> bool:
-    import win32api
-    import win32file
+    import string
+    import ctypes
+
+    DRIVE_REMOVABLE = 2
+
+    def get_removable_drives():
+        drives = []
+        bitmask = ctypes.windll.kernel32.GetLogicalDrives()
+        for letter in string.ascii_uppercase:
+            path = letter + ":\\"
+            if bitmask & 1 and ctypes.windll.kernel32.GetDriveTypeW(path) == DRIVE_REMOVABLE:
+                drives.append(path)
+            bitmask >>= 1
+        return drives
 
     end_time = time.time() + 5
 
     while time.time() < end_time:
-        drives = win32api.GetLogicalDriveStrings()
-        drives = drives.split("\000")[:-1]
-
+        drives = get_removable_drives()
         for d in drives:
             try:
-                type_ = win32file.GetDriveType(d)
-                if type_ == win32file.DRIVE_REMOVABLE:
-                    if not os.path.exists(
-                        os.path.join(d, "INFO_UF2.TXT")
-                    ):  # TODO: check Board-ID
-                        continue
+                if not os.path.exists(os.path.join(d, "INFO_UF2.TXT")):
+                    continue
 
-                    print(
-                        f"{SCS}⚙️ UF2 bootloader found ({d}). Flashing... {RESET}")
-                    try:
-                        shutil.copyfile(uf2_path, os.path.join(d, os.path.basename(uf2_path)))
-                    except Exception as e:
-                        print(f"{ERR}❓ UF2 flashing failed{RESET}")
-                        if verbose:
-                            print("Error:", e)
-                        return False
-                    print(f"{SCS}✅ Firmware flashed successfully{RESET}")
-                    return True
+                print(f"{SCS}⚙️ UF2 bootloader found ({d}). Flashing... {RESET}")
+                try:
+                    shutil.copyfile(uf2_path, os.path.join(
+                        d, os.path.basename(uf2_path)))
+                except Exception as e:
+                    print(f"{ERR}❓ UF2 flashing failed{RESET}")
+                    if verbose:
+                        print("Error:", e)
+                    return False
+                print(f"{SCS}✅ Firmware flashed successfully{RESET}")
+                return True
             except Exception:
                 continue
         time.sleep(0.5)
@@ -86,15 +92,15 @@ def flash_uf2_windows(uf2_path: str, verbose: bool) -> bool:
 
 
 def flash_uf2_linux(uf2_path: str, verbose: bool) -> bool:
-    end_time=time.time() + 5
+    end_time = time.time() + 5
 
     while time.time() < end_time:
         with open("/proc/mounts", "r") as f:
-            mounts=[line.split()[1] for line in f.readlines()]
+            mounts = [line.split()[1] for line in f.readlines()]
 
         for mount_point in mounts:
             # TODO: check Board-ID
-            info_file=os.path.join(mount_point, "INFO_UF2.TXT")
+            info_file = os.path.join(mount_point, "INFO_UF2.TXT")
             if os.path.exists(info_file):
                 print(
                     f"{SCS}⚙️ UF2 bootloader found ({mount_point}). Flashing... {RESET}")
@@ -119,7 +125,7 @@ def flash_uf2_linux(uf2_path: str, verbose: bool) -> bool:
 
 
 def flash_uf2(uf2_path: str, verbose=False) -> bool:
-    funcs={
+    funcs = {
         "linux": flash_uf2_linux,
         "win32": flash_uf2_windows,
     }
@@ -133,7 +139,7 @@ def flash_uf2(uf2_path: str, verbose=False) -> bool:
 
 
 def main():
-    parser=argparse.ArgumentParser(description="DFU reset tool")
+    parser = argparse.ArgumentParser(description="DFU reset tool")
     parser.add_argument("--vid", type=lambda x: int(x, 0),
                         default=0x2FE3, help="USB VID (hex or int)")
     parser.add_argument("--pid", type=lambda x: int(x, 0),
@@ -143,7 +149,7 @@ def main():
     parser.add_argument("--nowait", action="store_true",
                         help="Do not wait for device if not found")
     parser.add_argument("-v", "--verbose", action="store_true")
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     try:
         if args.firmware:

@@ -14,7 +14,9 @@ current = site_packages.parent
 # The parent directory of the site_packages directory is our shiv cache
 cache_path = current.parent
 
-name, build_id = current.name.split('_')
+# Try to ignore underscore in name
+name, build_id = current.name.split('pyz_')
+name += "pyz"
 
 if __name__ == "__main__":
     for path in cache_path.iterdir():

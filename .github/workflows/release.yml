@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install shiv
+
+      - name: Build pyz with Shiv
+        run: |
+          shiv -c mixy_dfu -o mixy_dfu.pyz --preamble build_res/shiv_preamble.py .
+
+      - name: Rename main file for export
+        run: |
+          mv mixy_dfu/main.py mixy_dfu.py
+
+      - name: Create GitHub Release and upload artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            mixy_dfu.pyz
+            mixy_dfu.py

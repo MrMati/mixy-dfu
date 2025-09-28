@@ -23,7 +23,7 @@ jobs:
 
       - name: Build pyz with Shiv
         run: |
-          shiv -c mixy_dfu -o dist/mixy_dfu.pyz --preamble build_res/shiv_preamble.py mixy_dfu
+          shiv -c mixy_dfu -o dist/mixy_dfu.pyz --preamble build_res/shiv_preamble.py .
 
       - name: Create GitHub Release and upload artifact
         uses: softprops/action-gh-release@v2
